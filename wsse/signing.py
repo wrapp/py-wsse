@@ -16,7 +16,7 @@ from .exceptions import SignatureVerificationFailed
 from .xml import ensure_id, ns
 
 
-def sign(envelope, keyfile, certfile):
+def sign(envelope, keyfile, certfile, with_timestamp=True):
     """Sign given SOAP envelope with WSSE sig using given key and cert.
 
     Sign the wsu:Timestamp node in the wsse:Security header and the soap:Body;
@@ -135,7 +135,9 @@ def sign(envelope, keyfile, certfile):
     ctx = xmlsec.SignatureContext()
     ctx.key = key
     _sign_node(ctx, signature, doc.find(ns(SOAP_NS, 'Body')))
-    _sign_node(ctx, signature, security.find(ns(WSU_NS, 'Timestamp')))
+
+    if with_timestamp:
+        _sign_node(ctx, signature, security.find(ns(WSU_NS, 'Timestamp')))
     ctx.sign(signature)
 
     # Place the X509 data inside a WSSE SecurityTokenReference within
